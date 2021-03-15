@@ -213,8 +213,7 @@ const FallbackIntentHandler = {
                 'period': {
                     'until': 'EXPLICIT_RETURN'
                 }
-            })
-            .getResponse();
+            }).getResponse();
     }
 };
 
@@ -275,12 +274,10 @@ const AddCustomPizzaApiHandler = {
         // associated datatype for the string field value, so it is spoken as its numerical value during the audio
         // response. We mention it in the response to ensure it will be carried-over to an anaphoric "remove" utterance,
         // as specified in the AddThenRemovePizza sample dialog.
-        return {
-            apiResponse: {
-                pizza: pizza,
-                ordinal: `${sessionAttributes.inProgress.pizzas.length}`
-            }
-        };
+        return handlerInput.responseBuilder.withApiResponse({
+            pizza: pizza,
+            ordinal: `${sessionAttributes.inProgress.pizzas.length}`
+        }).getResponse();
     }
 };
 
@@ -297,15 +294,12 @@ const GetSpecialtyPizzaDetailsApiHandler = {
         if (specialtyPizzaNameId && SPECIALTY_PIZZAS_BY_ID[specialtyPizzaNameId]) {
             const pizza = SPECIALTY_PIZZAS_BY_ID[specialtyPizzaNameId];
             pizza.nullableSpecialtyPizzaName = util.getSlotResolvedValue(specialtyPizzaNameSlot);
-            return {
-                apiResponse: pizza
-            };
+
+            return handlerInput.responseBuilder.withApiResponse(pizza).getResponse();
         }
 
         // Give an empty response to cue the mapped response template we didn't find one.
-        return {
-            apiResponse: {}
-        };
+        return handlerInput.responseBuilder.withApiResponse({}).getResponse();
     }
 };
 
@@ -320,9 +314,7 @@ const AddSpecialtyPizzaApiHandler = {
         const specialtyPizzaNameId = util.getSlotResolvedId(specialtyPizzaNameSlot);
 
         if (!specialtyPizzaNameId || !SPECIALTY_PIZZAS_BY_ID[specialtyPizzaNameId]) {
-            return {
-                apiResponse: {}
-            }
+            return handlerInput.responseBuilder.withApiResponse({}).getResponse();
         }
 
         const pizza = SPECIALTY_PIZZAS_BY_ID[specialtyPizzaNameId];
@@ -333,9 +325,8 @@ const AddSpecialtyPizzaApiHandler = {
         sessionAttributes.inProgress.pizzas.push(pizza);
 
         const latestOrdinalString = `${sessionAttributes.inProgress.pizzas.length}`;
-        return {
-            apiResponse: latestOrdinalString
-        };
+
+        return handlerInput.responseBuilder.withApiResponse(latestOrdinalString).getResponse();
     }
 };
 
@@ -349,11 +340,9 @@ const GetInProgressOrderApiHandler = {
 
         const nullablePizzas = _.get(sessionAttributes, 'inProgress.pizzas');
 
-        return {
-            apiResponse: {
-                pizzas: nullablePizzas
-            }
-        };
+        return handlerInput.responseBuilder.withApiResponse({
+            pizzas: nullablePizzas
+        }).getResponse();
     }
 }
 
@@ -370,31 +359,25 @@ const RemovePizzaApiHandler = {
         const nullablePizzas = _.get(sessionAttributes, 'inProgress.pizzas');
         if (!nullablePizzas) {
             // There's no order in progress: cue AC to a spoken error response per our saved APLA.
-            return {
-                apiResponse: {
-                    badRequestType: REMOVE_PIZZA_BAD_REQUEST_TYPES.NO_ORDER_IN_PROGRESS
-                }
-            };
+            return handlerInput.responseBuilder.withApiResponse({
+                badRequestType: REMOVE_PIZZA_BAD_REQUEST_TYPES.NO_ORDER_IN_PROGRESS
+            }).getResponse();
         }
 
         if (apiArguments.ordinal < 0 || apiArguments.ordinal > nullablePizzas.length) {
             // There's fewer pizzas in the array than the given ordinal: cue AC to a spoken error response.
-            return {
-                apiResponse: {
-                    badRequestType: REMOVE_PIZZA_BAD_REQUEST_TYPES.TOO_FEW_PIZZAS_FOR_ORDINAL
-                }
-            };
+            return handlerInput.responseBuilder.withApiResponse({
+                badRequestType: REMOVE_PIZZA_BAD_REQUEST_TYPES.TOO_FEW_PIZZAS_FOR_ORDINAL
+            }).getResponse();
         }
 
         const arrayIndex = Number.parseInt(apiArguments.ordinal) - 1;
         const removedPizza = nullablePizzas[arrayIndex];
         sessionAttributes.inProgress.pizzas.splice(arrayIndex, 1);
 
-        return {
-            apiResponse: {
-                removedPizza: removedPizza
-            }
-        };
+        return handlerInput.responseBuilder.withApiResponse({
+            removedPizza: removedPizza
+        }).getResponse();
     }
 };
 
@@ -409,9 +392,7 @@ const PlaceOrderApiHandler = {
         const inProgressOrder = _.get(sessionAttributes, 'inProgress');
         if (!inProgressOrder) {
             // Return empty Order to cue error response.
-            return {
-                apiResponse: {}
-            }
+            return handlerInput.responseBuilder.withApiResponse({}).getResponse();
         }
 
         _.defaults(sessionAttributes, { placedOrders: [] });
@@ -419,9 +400,7 @@ const PlaceOrderApiHandler = {
         inProgressOrder.cost = getTotalCost(inProgressOrder);
         delete sessionAttributes.inProgress;
 
-        return {
-            apiResponse: inProgressOrder
-        };
+        return handlerInput.responseBuilder.withApiResponse(inProgressOrder).getResponse();
     }
 };
 
@@ -442,11 +421,9 @@ const ChangeNameApiHandler = {
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         sessionAttributes.givenName = initialCapitalName;
 
-        return {
-            apiResponse: {
-                name: initialCapitalName
-            }
-        };
+        return handlerInput.responseBuilder.withApiResponse({
+            name: initialCapitalName
+        }).getResponse();
     }
 };
 
@@ -472,8 +449,7 @@ const DelegateToRemoveNameIntentApiHandler = {
                         'name': 'RemoveNameIntent'
                     }
                 }
-            })
-            .getResponse();
+            }).getResponse();
     }
 };
 
@@ -530,13 +506,13 @@ const LogResponseInterceptor = {
 
 const LocalizationInterceptor = {
     process(handlerInput) {
-        i18next
-            .init({
-                lng: _.get(handlerInput, 'requestEnvelope.request.locale'),
-                overloadTranslationOptionHandler: sprintf.overloadTranslationOptionHandler,
-                resources: resources,
-                returnObjects: true
-            });
+        i18next.init({
+            lng: _.get(handlerInput, 'requestEnvelope.request.locale'),
+            overloadTranslationOptionHandler: sprintf.overloadTranslationOptionHandler,
+            resources: resources,
+            fallbackLng: 'en',
+            returnObjects: true
+        });
 
         handlerInput.t = (key, opts) => {
             const value = i18next.t(key, {...{interpolation: {escapeValue: false}}, ...opts});
@@ -554,6 +530,7 @@ const getTotalCost = (order) => {
     if (order.pizzas) {
         orderCost += order.pizzas.map(pizza => pizza.cost)
             .reduce((total, pizzaCost) => total + pizzaCost, 0);
+        orderCost = orderCost.toFixed(2);
     }
     return orderCost;
 };
