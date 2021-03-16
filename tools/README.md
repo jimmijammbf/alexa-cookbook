@@ -3,10 +3,9 @@
 
 ### Design Tools
 
-One-page design sheets can be printed and used to sketch out ideas for a conversation with Alexa.
+Dialogue design sheets can be printed and used to sketch out ideas for a conversation with Alexa.
 
-* [Alexa Dialogue Design](https://www.amazon.com/clouddrive/share/5WMoGXcKHSWWSoRiC3VNFmBnEveQBdPnLZq711Iu3d?ref_=cd_ph_share_link_copy)
-* [Alexa Dialogue Design - Detailed](https://www.amazon.com/clouddrive/share/PLKDyDip6Jv1HK450NTTGzJZJB4QjDyYxTMlQgmWDCQ?ref_=cd_ph_share_link_copy)
+* [Alexa Dialogue Design](https://github.com/alexa/alexa-cookbook/blob/master/tools/situational-design/situational-design-template.sketch.pdf)
 
 ### Developer Tools
 
