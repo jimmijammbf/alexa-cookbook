@@ -14,8 +14,8 @@
  * permissions and limitations under the License.
  **/
 
-const Alexa     = require('ask-sdk-core');
-const util      = require('./util');
+const Alexa = require('ask-sdk-core');
+const util = require('./util');
 
 /**
  * API Handler for RecordColor API
@@ -40,7 +40,7 @@ const RecordColorApiHandler = {
 
         return handlerInput.responseBuilder
             .withApiResponse({
-                color : color
+                color: color
             })
             .withShouldEndSession(false)
             .getResponse();
@@ -48,12 +48,12 @@ const RecordColorApiHandler = {
 }
 
 const IntroToAlexaConversationsButtonEventHandler = {
-    canHandle(handlerInput){
+    canHandle(handlerInput) {
         console.log(JSON.stringify(handlerInput.requestEnvelope));
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'Alexa.Presentation.APL.UserEvent'
             && handlerInput.requestEnvelope.request.arguments[0] === 'SetFavoriteColor';
     },
-    handle(handlerInput){
+    handle(handlerInput) {
         return handlerInput.responseBuilder
             .addDirective({
                 type: 'Dialog.DelegateRequest',
@@ -67,7 +67,7 @@ const IntroToAlexaConversationsButtonEventHandler = {
                         name: 'SpecifyFavoriteColor',
                         slots: {
                             'color': {
-                                name : 'color',
+                                name: 'color',
                                 value: handlerInput.requestEnvelope.request.arguments[1]
                             }
                         }
@@ -95,13 +95,13 @@ const GetFavoriteColorApiHandler = {
 
         // Get the favorite color from the session
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        if (sessionAttributes.favoriteColor){
+        if (sessionAttributes.favoriteColor) {
             var color = sessionAttributes.favoriteColor;
         }
 
         return handlerInput.responseBuilder
             .withApiResponse({
-                color : color
+                color: color
             })
             .withShouldEndSession(false)
             .getResponse();
