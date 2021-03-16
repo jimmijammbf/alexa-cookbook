@@ -145,8 +145,7 @@ const GiveNameIntentHandler = {
                         }
                     }
                 }
-            })
-            .getResponse();
+            }).getResponse();
     }
 };
 
@@ -277,7 +276,9 @@ const AddCustomPizzaApiHandler = {
         return handlerInput.responseBuilder.withApiResponse({
             pizza: pizza,
             ordinal: `${sessionAttributes.inProgress.pizzas.length}`
-        }).getResponse();
+        })
+        .withShouldEndSession(false)
+        .getResponse();
     }
 };
 
@@ -295,11 +296,17 @@ const GetSpecialtyPizzaDetailsApiHandler = {
             const pizza = SPECIALTY_PIZZAS_BY_ID[specialtyPizzaNameId];
             pizza.nullableSpecialtyPizzaName = util.getSlotResolvedValue(specialtyPizzaNameSlot);
 
-            return handlerInput.responseBuilder.withApiResponse(pizza).getResponse();
+            return handlerInput.responseBuilder
+                .withApiResponse(pizza)
+                .withShouldEndSession(false)
+                .getResponse();
         }
 
         // Give an empty response to cue the mapped response template we didn't find one.
-        return handlerInput.responseBuilder.withApiResponse({}).getResponse();
+        return handlerInput.responseBuilder
+            .withApiResponse({})
+            .withShouldEndSession(false)
+            .getResponse();
     }
 };
 
@@ -314,7 +321,10 @@ const AddSpecialtyPizzaApiHandler = {
         const specialtyPizzaNameId = util.getSlotResolvedId(specialtyPizzaNameSlot);
 
         if (!specialtyPizzaNameId || !SPECIALTY_PIZZAS_BY_ID[specialtyPizzaNameId]) {
-            return handlerInput.responseBuilder.withApiResponse({}).getResponse();
+            return handlerInput.responseBuilder
+                .withApiResponse({})
+                .withShouldEndSession(false)
+                .getResponse();
         }
 
         const pizza = SPECIALTY_PIZZAS_BY_ID[specialtyPizzaNameId];
@@ -326,7 +336,10 @@ const AddSpecialtyPizzaApiHandler = {
 
         const latestOrdinalString = `${sessionAttributes.inProgress.pizzas.length}`;
 
-        return handlerInput.responseBuilder.withApiResponse(latestOrdinalString).getResponse();
+        return handlerInput.responseBuilder
+            .withApiResponse(latestOrdinalString)
+            .withShouldEndSession(false)
+            .getResponse();
     }
 };
 
@@ -342,7 +355,9 @@ const GetInProgressOrderApiHandler = {
 
         return handlerInput.responseBuilder.withApiResponse({
             pizzas: nullablePizzas
-        }).getResponse();
+        })
+        .withShouldEndSession(false)
+        .getResponse();
     }
 }
 
@@ -361,14 +376,18 @@ const RemovePizzaApiHandler = {
             // There's no order in progress: cue AC to a spoken error response per our saved APLA.
             return handlerInput.responseBuilder.withApiResponse({
                 badRequestType: REMOVE_PIZZA_BAD_REQUEST_TYPES.NO_ORDER_IN_PROGRESS
-            }).getResponse();
+            })
+            .withShouldEndSession(false)
+            .getResponse();
         }
 
         if (apiArguments.ordinal < 0 || apiArguments.ordinal > nullablePizzas.length) {
             // There's fewer pizzas in the array than the given ordinal: cue AC to a spoken error response.
             return handlerInput.responseBuilder.withApiResponse({
                 badRequestType: REMOVE_PIZZA_BAD_REQUEST_TYPES.TOO_FEW_PIZZAS_FOR_ORDINAL
-            }).getResponse();
+            })
+            .withShouldEndSession(false)
+            .getResponse();
         }
 
         const arrayIndex = Number.parseInt(apiArguments.ordinal) - 1;
@@ -377,7 +396,9 @@ const RemovePizzaApiHandler = {
 
         return handlerInput.responseBuilder.withApiResponse({
             removedPizza: removedPizza
-        }).getResponse();
+        })
+        .withShouldEndSession(false)
+        .getResponse();
     }
 };
 
@@ -392,7 +413,10 @@ const PlaceOrderApiHandler = {
         const inProgressOrder = _.get(sessionAttributes, 'inProgress');
         if (!inProgressOrder) {
             // Return empty Order to cue error response.
-            return handlerInput.responseBuilder.withApiResponse({}).getResponse();
+            return handlerInput.responseBuilder
+                .withApiResponse({})
+                .withShouldEndSession(false)
+                .getResponse();
         }
 
         _.defaults(sessionAttributes, { placedOrders: [] });
@@ -400,7 +424,10 @@ const PlaceOrderApiHandler = {
         inProgressOrder.cost = getTotalCost(inProgressOrder);
         delete sessionAttributes.inProgress;
 
-        return handlerInput.responseBuilder.withApiResponse(inProgressOrder).getResponse();
+        return handlerInput.responseBuilder
+            .withApiResponse(inProgressOrder)
+            .withShouldEndSession(false)
+            .getResponse();
     }
 };
 
@@ -423,7 +450,9 @@ const ChangeNameApiHandler = {
 
         return handlerInput.responseBuilder.withApiResponse({
             name: initialCapitalName
-        }).getResponse();
+        })
+        .withShouldEndSession(false)
+        .getResponse();
     }
 };
 
@@ -449,7 +478,9 @@ const DelegateToRemoveNameIntentApiHandler = {
                         'name': 'RemoveNameIntent'
                     }
                 }
-            }).getResponse();
+            })
+            .withShouldEndSession(false)
+            .getResponse();
     }
 };
 
