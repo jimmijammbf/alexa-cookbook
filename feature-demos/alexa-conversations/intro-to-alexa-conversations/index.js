@@ -1,28 +1,28 @@
 /**
  * Copyright 2020 Amazon.com, Inc. and its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: LicenseRef-.amazon.com.-AmznSL-1.0
- * 
+ *
  * Licensed under the Amazon Software License (the "License").
  * You may not use this file except in compliance with the License.
  * A copy of the License is located at
- * 
+ *
  * http://aws.amazon.com/asl/
- * 
+ *
  * or in the "license" file accompanying this file. This file is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
-**/
+ **/
 
-const Alexa     = require('ask-sdk-core');
-const util      = require('./util');
+const Alexa = require('ask-sdk-core');
+const util = require('./util');
 
 /**
  * API Handler for RecordColor API
- * 
+ *
  * @param handlerInput
- * @returns API response object 
- * 
+ * @returns API response object
+ *
  * See https://developer.amazon.com/en-US/docs/alexa/conversations/handle-api-calls.html
  */
 const RecordColorApiHandler = {
@@ -38,52 +38,52 @@ const RecordColorApiHandler = {
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         sessionAttributes.favoriteColor = color;
 
-        let response = {
-            apiResponse: {
-                color : color
-            }
-        };
-        console.log("Api Response [RecordColor]: ", JSON.stringify(response, null, 2));
-        return response;
+        return handlerInput.responseBuilder
+            .withApiResponse({
+                color: color
+            })
+            .withShouldEndSession(false)
+            .getResponse();
     }
 }
+
 const IntroToAlexaConversationsButtonEventHandler = {
-    canHandle(handlerInput){
+    canHandle(handlerInput) {
         console.log(JSON.stringify(handlerInput.requestEnvelope));
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'Alexa.Presentation.APL.UserEvent'
             && handlerInput.requestEnvelope.request.arguments[0] === 'SetFavoriteColor';
     },
-    handle(handlerInput){
-       return handlerInput.responseBuilder
-                    .addDirective({
-                        type: 'Dialog.DelegateRequest',
-                        target: 'AMAZON.Conversations',
-                        period: {
-                            until: 'EXPLICIT_RETURN' 
-                        },
-                        updatedRequest: {
-                            type: 'Dialog.InputRequest',
-                            input: {
-                                name: 'SpecifyFavoriteColor',
-                                slots: {
-                                    name: {
-                                        name : 'color',
-                                        value: handlerInput.requestEnvelope.request.arguments[1]
-                                    }
-                                }
+    handle(handlerInput) {
+        return handlerInput.responseBuilder
+            .addDirective({
+                type: 'Dialog.DelegateRequest',
+                target: 'AMAZON.Conversations',
+                period: {
+                    until: 'EXPLICIT_RETURN'
+                },
+                updatedRequest: {
+                    type: 'Dialog.InputRequest',
+                    input: {
+                        name: 'SpecifyFavoriteColor',
+                        slots: {
+                            'color': {
+                                name: 'color',
+                                value: handlerInput.requestEnvelope.request.arguments[1]
                             }
                         }
-                    })
-                    .getResponse();
+                    }
+                }
+            })
+            .getResponse();
     }
 }
 
 /**
  * API Handler for GetFavoriteColor API
- * 
+ *
  * @param handlerInput
- * @returns API response object 
- * 
+ * @returns API response object
+ *
  * See https://developer.amazon.com/en-US/docs/alexa/conversations/handle-api-calls.html
  */
 const GetFavoriteColorApiHandler = {
@@ -92,28 +92,27 @@ const GetFavoriteColorApiHandler = {
     },
     handle(handlerInput) {
         console.log("Api Request [GetFavoriteColor]: ", JSON.stringify(handlerInput.requestEnvelope.request, null, 2));
-        
+
         // Get the favorite color from the session
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        if (sessionAttributes.favoriteColor){
+        if (sessionAttributes.favoriteColor) {
             var color = sessionAttributes.favoriteColor;
         }
-        let response = {
-            apiResponse: {
-                color : color
-            }
-        };
-        
-        console.log("Api Response [GetFavoriteColor]: ", JSON.stringify(response, null, 2));
-        return response;
+
+        return handlerInput.responseBuilder
+            .withApiResponse({
+                color: color
+            })
+            .withShouldEndSession(false)
+            .getResponse();
     }
 }
 /**
- * FallbackIntentHandler - Handle all other requests to the skill 
- * 
+ * FallbackIntentHandler - Handle all other requests to the skill
+ *
  * @param handlerInput
  * @returns response
- * 
+ *
  * See https://developer.amazon.com/en-US/docs/alexa/conversations/handle-api-calls.html
  */
 const FallbackIntentHandler = {
@@ -186,5 +185,5 @@ exports.handler = Alexa.SkillBuilders.custom()
         FallbackIntentHandler,
         SessionEndedRequestHandler
     )
-     .withCustomUserAgent('reference-skills/intro-to-alexa-conversations/v1')
+    .withCustomUserAgent('reference-skills/intro-to-alexa-conversations/v1')
     .lambda();
